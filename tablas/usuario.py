@@ -13,34 +13,25 @@ def crear(cursor, valores):
     cursor.execute("EXEC spInsertarUsuario ?,?,?,?,?,?,?", valores)
 
 def actualizar(cursor, datos):
-    id_usuario = datos["idUsuario"]
-    id_campus = datos["idCampus"]
-
-    # Ejecutar spActualizarUsuario para los datos
     cursor.execute("""
-        EXEC spActualizarUsuario
-            @idUsuario=?,
-            @campo1=?, @valor1=?,
-            @campo2=?, @valor2=?,
-            @campo3=?, @valor3=?,
-            @idCampus=?
+        EXEC spActualizarUsuario 
+            @idUsuario = ?, 
+            @nombre = ?, 
+            @apellido = ?, 
+            @correo = ?, 
+            @idTipoUsuario = ?, 
+            @estadoUsuario = ?, 
+            @idCampus = ?
     """, (
-        id_usuario,
-        "nombre", datos["nombre"],
-        "apellido", datos["apellido"],
-        "correo", datos["correo"],
-        id_campus
-    ))
-
-    # Luego actualizar estadoUsuario (UsuarioValidacion)
-    cursor.execute("""
-        EXEC spActualizarUsuarioValidacion
-            @idUsuario=?, @estadoUsuario=?, @idCampus=?
-    """, (
-        id_usuario,
+        datos["idUsuario"],
+        datos["nombre"],
+        datos["apellido"],
+        datos["correo"],
+        datos["idTipoUsuario"],
         datos["estadoUsuario"],
-        id_campus
+        datos["idCampus"]
     ))
+
 
 
 

@@ -10,8 +10,14 @@ def buscar(cursor, campo, valor):
 def crear(cursor, valores):
     cursor.execute("EXEC spInsertarDispositivoEntrada ?,?,?,?", valores)
 
-def actualizar(cursor, valores):
-    cursor.execute("EXEC spActualizarDispositivoEntrada ?,?,?,?", valores)
+def actualizar(cursor, datos):
+    cursor.execute(
+        "EXEC spActualizarDispositivoEntrada ?, ?, ?",
+        datos["idDispositivo"],
+        datos["tipoDispositivo"],
+        datos["ubicacion"]
+    )
 
-def eliminar(cursor, id_dispositivo_entrada):
-    cursor.execute("EXEC spEliminarDispositivoEntrada ?", (id_dispositivo_entrada,))
+
+def eliminar(cursor, id_dispositivo_entrada, idCampus):
+    cursor.execute("EXEC spEliminarDispositivoEntrada ?, ?", (id_dispositivo_entrada, idCampus))

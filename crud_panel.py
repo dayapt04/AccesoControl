@@ -270,6 +270,53 @@ def abrir_ventana_buscar():
 #               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
 #               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
 
+# def abrir_ventana_actualizar():
+#     seleccionado = tabla.focus()
+#     if not seleccionado:
+#         messagebox.showwarning("Advertencia", "Seleccione un registro para actualizar.")
+#         return
+
+#     valores = tabla.item(seleccionado, "values")
+#     campos = tabla["columns"]
+
+#     top = tk.Toplevel(root)
+#     top.title(f"Actualizar {tabla_seleccionada.get()}")
+#     top.geometry("400x500")
+#     top.configure(bg=CREMA)
+
+#     tk.Label(top, text="✏️ Actualizar Registro", bg=CREMA, fg=AZUL_OSCURO,
+#              font=("Arial", 16, "bold")).pack(pady=(15, 10))
+
+#     entradas = {}
+
+#     for i, campo in enumerate(campos):
+#         tk.Label(top, text=f"{campo}:", bg=CREMA, fg="black", font=("Arial", 11)).pack()
+#         entrada = tk.Entry(top, font=("Arial", 10))
+#         entrada.insert(0, valores[i])
+#         entrada.pack(pady=5)
+#         entradas[campo] = entrada
+
+#     def guardar_cambios():
+#         nuevos_valores = {campo: entradas[campo].get() for campo in campos}
+#         if not all(nuevos_valores.values()):
+#             messagebox.showwarning("Advertencia", "Complete todos los campos.")
+#             return
+
+#         try:
+#             modulo = importlib.import_module(f"tablas.{tabla_seleccionada.get().lower()}")
+#             with conn.cursor() as cur:
+#                 modulo.actualizar(cur, nuevos_valores)
+#             conn.commit()
+#             messagebox.showinfo("Éxito", "Registro actualizado correctamente.")
+#             actualizar_columnas()
+#             top.destroy()
+#         except Exception as e:
+#             messagebox.showerror("Error", f"No se pudo actualizar el registro:\n{e}")
+
+#     tk.Button(top, text="Guardar cambios", command=guardar_cambios,
+#               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
+#               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
+
 def abrir_ventana_actualizar():
     seleccionado = tabla.focus()
     if not seleccionado:
@@ -292,12 +339,14 @@ def abrir_ventana_actualizar():
     for i, campo in enumerate(campos):
         tk.Label(top, text=f"{campo}:", bg=CREMA, fg="black", font=("Arial", 11)).pack()
         entrada = tk.Entry(top, font=("Arial", 10))
-        entrada.insert(0, valores[i])
+        entrada.insert(0, valores[i])  # Rellena con el valor actual
         entrada.pack(pady=5)
         entradas[campo] = entrada
 
     def guardar_cambios():
-        nuevos_valores = {campo: entradas[campo].get() for campo in campos}
+        # Recoge TODOS los valores, modificados o no
+        nuevos_valores = {campo: entradas[campo].get().strip() for campo in campos}
+
         if not all(nuevos_valores.values()):
             messagebox.showwarning("Advertencia", "Complete todos los campos.")
             return
@@ -322,7 +371,7 @@ columnas_para_eliminar = {
     "RegistroAcceso": ["idRegistro", "idCampus"],
     "Ingresar": ["idCredencial", "idCampus"],
     "Usuario": ["idUsuario"],
-    "DispositivoEntrada": ["idDispositivo"],
+    "DispositivoEntrada": ["idDispositivo", "idCampus"],
     "TipoUsuario": ["idTipo"],
     "Campus": ["idCampus"],
     "Credencial": ["idCredencial"]

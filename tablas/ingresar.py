@@ -18,5 +18,5 @@ def crear(cursor, valores):
 def actualizar(cursor, valores):
     cursor.execute("EXEC spActualizarIngresar ?,?,?,?,?", valores)
 
-def eliminar(cursor, id_campus, id_credencial):
-    cursor.execute("EXEC spEliminarIngresar ?, ?", (id_campus, id_credencial))
+def eliminar(cursor, id_credencial, id_campus):
+    cursor.execute("EXEC spEliminarIngresar ?, ?", (id_credencial, id_campus))
