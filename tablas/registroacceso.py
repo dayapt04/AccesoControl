@@ -23,15 +23,19 @@ def cargar_datos(tabla, cursor):
 
         tabla.insert("", "end", values=fila_formateada)
 
-def buscar(tabla, cursor, campo, valor):
-    """
-    Ejecuta el procedimiento almacenado de búsqueda y llena la tabla con los resultados.
-    """
-    try:
-        tabla.delete(*tabla.get_children())
-        cursor.execute("EXEC spBuscarRegistroAcceso ?, ?", (campo, valor))
-        for fila in cursor.fetchall():
-            tabla.insert("", "end", values=[str(col) for col in fila])
-    except Exception as e:
-        from tkinter import messagebox
-        messagebox.showerror("Error al buscar", f"No se pudo ejecutar la búsqueda:\n{e}")
+# def buscar(tabla, cursor, campo, valor):
+#     """
+#     Ejecuta el procedimiento almacenado de búsqueda y llena la tabla con los resultados.
+#     """
+#     try:
+#         tabla.delete(*tabla.get_children())
+#         cursor.execute("EXEC spBuscarRegistroAcceso ?, ?", (campo, valor))
+#         for fila in cursor.fetchall():
+#             tabla.insert("", "end", values=[str(col) for col in fila])
+#     except Exception as e:
+#         from tkinter import messagebox
+#         messagebox.showerror("Error al buscar", f"No se pudo ejecutar la búsqueda:\n{e}")
+
+def buscar(cursor, campo, valor):
+    cursor.execute("EXEC spBuscarRegistroAcceso ?, ?", campo, valor)
+    return cursor.fetchall()

@@ -1,7 +1,11 @@
 def cargar_datos(tabla, cursor):
     cursor.execute("SELECT * FROM vistaUsuario")
     for fila in cursor.fetchall():
-        tabla.insert("", "end", values=fila)
+        tabla.insert("", "end", values=[str(col) for col in fila])
+
+def buscar(cursor, campo, valor):
+    cursor.execute("EXEC spBuscarUsuario ?, ?", campo, valor)
+    return cursor.fetchall()
 
 def insertar(cursor, valores):
     cursor.execute("EXEC spInsertarUsuario ?,?,?,?,?", valores)

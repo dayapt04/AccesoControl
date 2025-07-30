@@ -141,10 +141,13 @@ def abrir_ventana_buscar():
 
         try:
             tabla.delete(*tabla.get_children())
+            modulo = importlib.import_module(f"tablas.{tabla_seleccionada.get().lower()}")
+
             with conn.cursor() as cur:
-                cur.execute(f"EXEC spBuscar{tabla_seleccionada.get()} ?, ?", (campo, valor))
-                for fila in cur.fetchall():
+                resultados = modulo.buscar(cur, campo, valor)
+                for fila in resultados:
                     tabla.insert("", "end", values=[str(col) for col in fila])
+
             top.destroy()
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo ejecutar la búsqueda:\n{e}")
@@ -152,6 +155,8 @@ def abrir_ventana_buscar():
     tk.Button(top, text="Buscar", command=ejecutar_busqueda,
               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
+
+
 
 # Reemplaza los lambda de prueba por las funciones reales
 crear_boton("CREAR", lambda: messagebox.showinfo("Actualizar", "Actualizar registro"), 0)
@@ -167,7 +172,7 @@ def actualizar_columnas(*args):
 
     columnas = {
         "Campus": ["idCampus", "direccionCampus", "nombreCampus"],
-        "Ingresar": ["idCampus", "idCredencial"],
+        "Ingresar": ["idCredencial", "idCampus"],
         "DispositivoEntrada": ["idDispositivo", "tipoDispositivo", "ubicacion"],
         "Credencial": ["idCredencial", "tipoCredencial", "idUsuario", "estadoCredencial"],
         "RegistroAcceso": ["idRegistro", "idCampus", "idCredencial", "idDispositivo", "evento", "fecha", "hora"],
