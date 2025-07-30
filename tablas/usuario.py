@@ -7,11 +7,13 @@ def buscar(cursor, campo, valor):
     cursor.execute("EXEC spBuscarUsuario ?, ?", campo, valor)
     return cursor.fetchall()
 
-def insertar(cursor, valores):
-    cursor.execute("EXEC spInsertarUsuario ?,?,?,?,?", valores)
+def crear(cursor, valores):
+    if not isinstance(valores, list):
+        raise ValueError("Se esperaba una lista ordenada, no un diccionario")
+    cursor.execute("EXEC spInsertarUsuario ?,?,?,?,?,?,?", valores)
 
 def actualizar(cursor, valores):
-    cursor.execute("EXEC spActualizarUsuario ?,?,?,?,?", valores)
+    cursor.execute("EXEC spActualizarUsuario ?,?,?,?,?,?,?", valores)
 
 def eliminar(cursor, id_usuario):
     cursor.execute("EXEC spEliminarUsuario ?", (id_usuario,))

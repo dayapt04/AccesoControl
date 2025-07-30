@@ -7,11 +7,11 @@ def buscar(cursor, campo, valor):
     cursor.execute("EXEC spBuscarDispositivoEntrada ?, ?", campo, valor)
     return cursor.fetchall()
 
-def insertar(cursor, valores):
-    cursor.execute("EXEC spInsertarDispositivoEntrada ?,?,?,?,?", valores)
+def crear(cursor, valores):
+    cursor.execute("EXEC spInsertarDispositivoEntrada ?,?,?,?", valores)
 
 def actualizar(cursor, valores):
-    cursor.execute("EXEC spActualizarDispositivoEntrada ?,?,?,?,?", valores)
+    cursor.execute("EXEC spActualizarDispositivoEntrada ?,?,?,?", valores)
 
 def eliminar(cursor, id_dispositivo_entrada):
     cursor.execute("EXEC spEliminarDispositivoEntrada ?", (id_dispositivo_entrada,))

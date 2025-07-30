@@ -10,6 +10,11 @@ def buscar(cursor, campo, valor):
 def insertar(cursor, valores):
     cursor.execute("EXEC spInsertarIngresar ?,?,?,?,?", valores)
 
+def crear(cursor, valores):
+    if not isinstance(valores, list):
+        raise ValueError("Se esperaba una lista ordenada, no un diccionario")
+    cursor.execute("EXEC spInsertarIngresar ?,?", valores)
+
 def actualizar(cursor, valores):
     cursor.execute("EXEC spActualizarIngresar ?,?,?,?,?", valores)
 

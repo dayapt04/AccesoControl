@@ -7,8 +7,8 @@ def buscar(cursor, campo, valor):
     cursor.execute("EXEC spBuscarCredencial ?, ?", campo, valor)
     return cursor.fetchall()
 
-def insertar(cursor, valores):
-    cursor.execute("EXEC spInsertarCredencial ?,?,?,?,?", valores)
+def crear(cursor, valores):
+    cursor.execute("EXEC spInsertarCredencial ?,?,?,?", valores)
 
 def actualizar(cursor, valores):
     cursor.execute("EXEC spActualizarCredencial ?,?,?,?,?", valores)

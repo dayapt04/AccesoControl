@@ -109,6 +109,58 @@ def crear_boton(texto, comando, columna):
     )
     boton.grid(row=0, column=columna, padx=15)
 
+def abrir_ventana_crear():
+    top = tk.Toplevel(root)
+    top.title(f"Crear en {tabla_seleccionada.get()}")
+    top.geometry("400x500")
+    top.configure(bg=CREMA)
+
+    tk.Label(top, text="📝 Crear Nuevo Registro", bg=CREMA, fg=AZUL_OSCURO,
+             font=("Arial", 16, "bold")).pack(pady=(15, 10))
+
+    entradas = {}
+    excluir = {"fecha", "hora"}
+    for campo in tabla["columns"]:
+        if campo in excluir:
+            continue
+        tk.Label(top, text=campo + ":", bg=CREMA, fg="black", font=("Arial", 11)).pack()
+        entrada = tk.Entry(top, font=("Arial", 10))
+        entrada.pack(pady=5)
+        entradas[campo] = entrada
+
+    def guardar():
+        # datos = {campo: entradas[campo].get() for campo in entradas}
+        # if not all(datos.values()):
+        #     messagebox.showwarning("Advertencia", "Complete todos los campos.")
+        #     return
+
+        # try:
+        #     modulo = importlib.import_module(f"tablas.{tabla_seleccionada.get().lower()}")
+        #     with conn.cursor() as cur:
+        #         modulo.crear(cur, datos)
+        campos = [campo for campo in tabla["columns"] if campo not in excluir]
+        valores = [entradas[campo].get() for campo in campos]
+
+        if not all(valores):
+            messagebox.showwarning("Advertencia", "Complete todos los campos.")
+            return
+
+        try:
+            modulo = importlib.import_module(f"tablas.{tabla_seleccionada.get().lower()}")
+            with conn.cursor() as cur:
+                modulo.crear(cur, valores)
+            conn.commit()
+            messagebox.showinfo("Éxito", "Registro creado correctamente.")
+            actualizar_columnas()
+            top.destroy()
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo crear el registro:\n{e}")
+
+    tk.Button(top, text="Guardar", command=guardar,
+              font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
+              activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
+
+
 def abrir_ventana_buscar():
     top = tk.Toplevel(root)
     top.title(f"Buscar en {tabla_seleccionada.get()}")
@@ -156,10 +208,56 @@ def abrir_ventana_buscar():
               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
 
+def abrir_ventana_actualizar():
+    seleccionado = tabla.focus()
+    if not seleccionado:
+        messagebox.showwarning("Advertencia", "Seleccione un registro para actualizar.")
+        return
+
+    valores = tabla.item(seleccionado, "values")
+    campos = tabla["columns"]
+
+    top = tk.Toplevel(root)
+    top.title(f"Actualizar {tabla_seleccionada.get()}")
+    top.geometry("400x500")
+    top.configure(bg=CREMA)
+
+    tk.Label(top, text="✏️ Actualizar Registro", bg=CREMA, fg=AZUL_OSCURO,
+             font=("Arial", 16, "bold")).pack(pady=(15, 10))
+
+    entradas = {}
+
+    for i, campo in enumerate(campos):
+        tk.Label(top, text=f"{campo}:", bg=CREMA, fg="black", font=("Arial", 11)).pack()
+        entrada = tk.Entry(top, font=("Arial", 10))
+        entrada.insert(0, valores[i])
+        entrada.pack(pady=5)
+        entradas[campo] = entrada
+
+    def guardar_cambios():
+        nuevos_valores = {campo: entradas[campo].get() for campo in campos}
+        if not all(nuevos_valores.values()):
+            messagebox.showwarning("Advertencia", "Complete todos los campos.")
+            return
+
+        try:
+            modulo = importlib.import_module(f"tablas.{tabla_seleccionada.get().lower()}")
+            with conn.cursor() as cur:
+                modulo.actualizar(cur, nuevos_valores)
+            conn.commit()
+            messagebox.showinfo("Éxito", "Registro actualizado correctamente.")
+            actualizar_columnas()
+            top.destroy()
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo actualizar el registro:\n{e}")
+
+    tk.Button(top, text="Guardar cambios", command=guardar_cambios,
+              font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
+              activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
 
 
 # Reemplaza los lambda de prueba por las funciones reales
-crear_boton("CREAR", lambda: messagebox.showinfo("Actualizar", "Actualizar registro"), 0)
+crear_boton("CREAR", abrir_ventana_crear, 0)
 crear_boton("BUSCAR", abrir_ventana_buscar, 1)
 crear_boton("ACTUALIZAR", lambda: messagebox.showinfo("Actualizar", "Actualizar registro"), 2)
 crear_boton("ELIMINAR", lambda: messagebox.showinfo("Eliminar", "Eliminar registro"), 3)
@@ -173,7 +271,7 @@ def actualizar_columnas(*args):
     columnas = {
         "Campus": ["idCampus", "direccionCampus", "nombreCampus"],
         "Ingresar": ["idCredencial", "idCampus"],
-        "DispositivoEntrada": ["idDispositivo", "tipoDispositivo", "ubicacion"],
+        "DispositivoEntrada": ["idDispositivo", "idCampus", "tipoDispositivo", "ubicacion"],
         "Credencial": ["idCredencial", "tipoCredencial", "idUsuario", "estadoCredencial"],
         "RegistroAcceso": ["idRegistro", "idCampus", "idCredencial", "idDispositivo", "evento", "fecha", "hora"],
         "Usuario": ["idUsuario", "nombre", "apellido", "correo", "idTipoUsuario", "estadoUsuario", "idCampus"],

@@ -39,3 +39,10 @@ def cargar_datos(tabla, cursor):
 def buscar(cursor, campo, valor):
     cursor.execute("EXEC spBuscarRegistroAcceso ?, ?", campo, valor)
     return cursor.fetchall()
+# tablas/registroacceso.py
+
+def crear(cursor, valores):
+    if not isinstance(valores, list):
+        raise ValueError("Se esperaba una lista ordenada, no un diccionario")
+    cursor.execute("EXEC spInsertarRegistroAcceso ?, ?, ?, ?, ?", valores)
+

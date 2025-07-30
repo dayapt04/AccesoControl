@@ -7,8 +7,11 @@ def buscar(cursor, campo, valor):
     cursor.execute("EXEC spBuscarCampus ?, ?", campo, valor)
     return cursor.fetchall()
 
-def insertar(cursor, valores):
-    cursor.execute("EXEC spInsertarCampus ?,?,?,?,?", valores)
+
+def crear(cursor, valores):
+    if not isinstance(valores, list):
+        raise ValueError("Se esperaba una lista ordenada, no un diccionario")
+    cursor.execute("EXEC spInsertarCampus ?,?,?", valores)
 
 def actualizar(cursor, valores):
     cursor.execute("EXEC spActualizarCampus ?,?,?,?,?", valores)
