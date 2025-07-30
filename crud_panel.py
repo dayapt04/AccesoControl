@@ -208,6 +208,68 @@ def abrir_ventana_buscar():
               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
 
+# def abrir_ventana_actualizar():
+#     seleccionado = tabla.focus()
+#     if not seleccionado:
+#         messagebox.showwarning("Advertencia", "Seleccione un registro para actualizar.")
+#         return
+
+#     valores_originales = tabla.item(seleccionado, "values")
+#     campos = tabla["columns"]
+
+#     top = tk.Toplevel(root)
+#     top.title(f"Actualizar {tabla_seleccionada.get()}")
+#     top.geometry("400x500")
+#     top.configure(bg=CREMA)
+
+#     tk.Label(top, text="✏️ Actualizar Registro", bg=CREMA, fg=AZUL_OSCURO,
+#              font=("Arial", 16, "bold")).pack(pady=(15, 10))
+
+#     entradas = {}
+
+#     for i, campo in enumerate(campos):
+#         tk.Label(top, text=f"{campo}:", bg=CREMA, fg="black", font=("Arial", 11)).pack()
+#         entrada = tk.Entry(top, font=("Arial", 10))
+#         entrada.insert(0, valores_originales[i])
+#         entrada.pack(pady=5)
+#         entradas[campo] = entrada
+
+#     def guardar_cambios():
+#         nuevos_valores = {
+#             campo: entradas[campo].get()
+#             for campo in campos
+#             if entradas[campo].get().strip() != "" and entradas[campo].get() != valores_originales[campos.index(campo)]
+#         }
+
+#         if not nuevos_valores:
+#             messagebox.showinfo("Sin cambios", "No se ha modificado ningún campo.")
+#             return
+
+#         try:
+#             # Suponemos que siempre hay id único + fragmento como primeras columnas
+#             id_valor = valores_originales[0]
+#             id_fragmento = valores_originales[1]
+
+#             set_clause = ", ".join(
+#                 f"{campo} = '{valor}'"
+#                 for campo, valor in nuevos_valores.items()
+#             )
+
+#             modulo = importlib.import_module(f"tablas.{tabla_seleccionada.get().lower()}")
+#             with conn.cursor() as cur:
+#                 modulo.actualizar(cur, id_valor, id_fragmento, set_clause)
+
+#             conn.commit()
+#             messagebox.showinfo("Éxito", "Registro actualizado correctamente.")
+#             actualizar_columnas()
+#             top.destroy()
+#         except Exception as e:
+#             messagebox.showerror("Error", f"No se pudo actualizar el registro:\n{e}")
+
+#     tk.Button(top, text="Guardar Cambios", command=guardar_cambios,
+#               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
+#               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
+
 def abrir_ventana_actualizar():
     seleccionado = tabla.focus()
     if not seleccionado:
@@ -255,12 +317,70 @@ def abrir_ventana_actualizar():
               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
 
+# Columnas necesarias para eliminar registros por tabla
+columnas_para_eliminar = {
+    "RegistroAcceso": ["idRegistro", "idCampus"],
+    "Ingresar": ["idCredencial", "idCampus"],
+    "Usuario": ["idUsuario"],
+    "DispositivoEntrada": ["idDispositivo"],
+    "TipoUsuario": ["idTipo"],
+    "Campus": ["idCampus"],
+    "Credencial": ["idCredencial"]
+    # Puedes incluir más según tu criterio, no hace falta que tengan PK real
+}
+
+def abrir_ventana_eliminar():
+    seleccionado = tabla.focus()
+    if not seleccionado:
+        messagebox.showwarning("Advertencia", "Seleccione un registro para eliminar.")
+        return
+
+    valores = tabla.item(seleccionado, "values")
+    tabla_actual = tabla_seleccionada.get()
+
+    claves = columnas_para_eliminar.get(tabla_actual, tabla["columns"][:1])  # usa al menos la 1.ª columna
+    valores_clave = [valores[tabla["columns"].index(col)] for col in claves]
+
+    # Ventana de confirmación
+    top = tk.Toplevel(root)
+    top.title("Confirmar Eliminación")
+    top.geometry("420x280")
+    top.configure(bg=CREMA)
+    top.grab_set()
+
+    tk.Label(top, text="🗑️ Confirmar Eliminación", bg=CREMA, fg=ROJO_OSCURO,
+             font=("Arial", 16, "bold")).pack(pady=(20, 10))
+
+    tk.Label(top, text=f"¿Deseas eliminar de la tabla '{tabla_actual}' este registro?", 
+             bg=CREMA, fg="black", font=("Arial", 12)).pack()
+
+    for col, val in zip(claves, valores_clave):
+        tk.Label(top, text=f"{col} = {val}", bg=CREMA, fg=AZUL_OSCURO, font=("Arial", 11)).pack()
+
+    def confirmar_eliminar():
+        try:
+            modulo = importlib.import_module(f"tablas.{tabla_actual.lower()}")
+            with conn.cursor() as cur:
+                modulo.eliminar(cur, *valores_clave)  # se pasan los valores clave definidos
+            conn.commit()
+            messagebox.showinfo("Éxito", "Registro eliminado correctamente.")
+            actualizar_columnas()
+            top.destroy()
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo eliminar el registro:\n{e}")
+
+    botones = tk.Frame(top, bg=CREMA)
+    botones.pack(pady=15)
+    tk.Button(botones, text="Cancelar", command=top.destroy,
+              font=("Arial", 10, "bold"), bg=AZUL_CLARO, fg="white").grid(row=0, column=0, padx=10)
+    tk.Button(botones, text="Eliminar", command=confirmar_eliminar,
+              font=("Arial", 10, "bold"), bg=ROJO_OSCURO, fg="white").grid(row=0, column=1, padx=10)
 
 # Reemplaza los lambda de prueba por las funciones reales
 crear_boton("CREAR", abrir_ventana_crear, 0)
 crear_boton("BUSCAR", abrir_ventana_buscar, 1)
-crear_boton("ACTUALIZAR", lambda: messagebox.showinfo("Actualizar", "Actualizar registro"), 2)
-crear_boton("ELIMINAR", lambda: messagebox.showinfo("Eliminar", "Eliminar registro"), 3)
+crear_boton("ACTUALIZAR", abrir_ventana_actualizar, 2)
+crear_boton("ELIMINAR", abrir_ventana_eliminar, 3)
 
 
 

@@ -46,3 +46,5 @@ def crear(cursor, valores):
         raise ValueError("Se esperaba una lista ordenada, no un diccionario")
     cursor.execute("EXEC spInsertarRegistroAcceso ?, ?, ?, ?, ?", valores)
 
+def eliminar(cursor, id_registro, id_campus):
+    cursor.execute("EXEC spEliminarRegistroAcceso ?, ?", (id_registro, id_campus))
