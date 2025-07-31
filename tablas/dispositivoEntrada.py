@@ -12,8 +12,9 @@ def crear(cursor, valores):
 
 def actualizar(cursor, datos):
     cursor.execute(
-        "EXEC spActualizarDispositivoEntrada ?, ?, ?",
+        "EXEC spActualizarDispositivoEntrada ?, ?, ?,?",
         datos["idDispositivo"],
+        datos["idCampus"],
         datos["tipoDispositivo"],
         datos["ubicacion"]
     )

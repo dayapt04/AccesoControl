@@ -10,8 +10,15 @@ def buscar(cursor, campo, valor):
 def crear(cursor, valores):
     cursor.execute("EXEC spInsertarTipoUsuario ?,?", valores)
 
-def actualizar(cursor, valores):
-    cursor.execute("EXEC spActualizarTipoUsuario ?,?,?,?,?", valores)
+def actualizar(cursor, datos):
+    cursor.execute("""
+        EXEC spActualizarTipoUsuario 
+            @idTipoUsuario = ?,
+            @descripcionTipo = ?
+    """, (
+        datos["idTipoUsuario"],
+        datos["descripcionTipo"]
+    ))
 
 def eliminar(cursor, id_tipo_usuario):
     cursor.execute("EXEC spEliminarTipoUsuario ?", (id_tipo_usuario,))

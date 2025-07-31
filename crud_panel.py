@@ -1,5 +1,6 @@
 # 
 
+import subprocess
 import tkinter as tk
 from tkinter import ttk, messagebox
 import importlib
@@ -38,6 +39,26 @@ contenedor.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.95, relheight=0
 header = tk.Frame(contenedor, bg=ROJO, height=65)
 header.pack(side="top", fill="x")
 
+# Botón REGRESAR (superior derecha)
+boton_regresar = tk.Button(
+    header,
+    text="⏪ REGRESAR",
+    command=lambda: regresar_al_inicio(),
+    font=("Arial", 10, "bold"),
+    bg=CREMA,
+    fg=ROJO_OSCURO,
+    activebackground=ROJO,
+    relief="flat",
+    padx=10,
+    pady=5
+)
+boton_regresar.pack(side="right", padx=15, pady=10)
+def regresar_al_inicio():
+    respuesta = messagebox.askyesno("Confirmar", "¿Deseas regresar al menú de inicio?")
+    if respuesta:
+        root.destroy()
+        subprocess.Popen(["python", "entrada.py"])  # cambia "main.py" si tu archivo principal tiene otro nombre
+
 # --- Título y Dropdown Tabla ---
 titulo_y_menu_frame = tk.Frame(header, bg=ROJO)
 titulo_y_menu_frame.pack(expand=True)
@@ -49,8 +70,8 @@ menu_tabla_frame = tk.Frame(titulo_y_menu_frame, bg=ROJO)
 menu_tabla_frame.pack(anchor="center", pady=(0, 5))
 
 tk.Label(menu_tabla_frame, text="TABLA:", bg=ROJO, fg="white", font=("Arial", 11, "bold")).pack(side="left")
-tabla_seleccionada = tk.StringVar(value="Usuario")
-tablas_disponibles = ["Campus", "Ingresar", "DispositivoEntrada", "Credencial", "RegistroAcceso", "Usuario", "TipoUsuario"]
+tabla_seleccionada = tk.StringVar(value="Selecciona una tabla")
+tablas_disponibles = ["Selecciona una tabla"] + ["Campus", "Ingresar", "DispositivoEntrada", "Credencial", "RegistroAcceso", "Usuario", "TipoUsuario"]
 tabla_menu = ttk.Combobox(menu_tabla_frame, textvariable=tabla_seleccionada, values=tablas_disponibles, state="readonly", font=("Arial", 10))
 tabla_menu.pack(side="left", padx=5)
 
@@ -93,6 +114,7 @@ panel_botones.pack(pady=15)
 panel_botones = tk.Frame(contenedor, bg=CREMA)
 panel_botones.pack(pady=15)
 
+
 def crear_boton(texto, comando, columna):
     boton = tk.Button(
         panel_botones,
@@ -129,15 +151,7 @@ def abrir_ventana_crear():
         entradas[campo] = entrada
 
     def guardar():
-        # datos = {campo: entradas[campo].get() for campo in entradas}
-        # if not all(datos.values()):
-        #     messagebox.showwarning("Advertencia", "Complete todos los campos.")
-        #     return
 
-        # try:
-        #     modulo = importlib.import_module(f"tablas.{tabla_seleccionada.get().lower()}")
-        #     with conn.cursor() as cur:
-        #         modulo.crear(cur, datos)
         campos = [campo for campo in tabla["columns"] if campo not in excluir]
         valores = [entradas[campo].get() for campo in campos]
 
@@ -208,116 +222,10 @@ def abrir_ventana_buscar():
               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
 
-# def abrir_ventana_actualizar():
-#     seleccionado = tabla.focus()
-#     if not seleccionado:
-#         messagebox.showwarning("Advertencia", "Seleccione un registro para actualizar.")
-#         return
-
-#     valores_originales = tabla.item(seleccionado, "values")
-#     campos = tabla["columns"]
-
-#     top = tk.Toplevel(root)
-#     top.title(f"Actualizar {tabla_seleccionada.get()}")
-#     top.geometry("400x500")
-#     top.configure(bg=CREMA)
-
-#     tk.Label(top, text="✏️ Actualizar Registro", bg=CREMA, fg=AZUL_OSCURO,
-#              font=("Arial", 16, "bold")).pack(pady=(15, 10))
-
-#     entradas = {}
-
-#     for i, campo in enumerate(campos):
-#         tk.Label(top, text=f"{campo}:", bg=CREMA, fg="black", font=("Arial", 11)).pack()
-#         entrada = tk.Entry(top, font=("Arial", 10))
-#         entrada.insert(0, valores_originales[i])
-#         entrada.pack(pady=5)
-#         entradas[campo] = entrada
-
-#     def guardar_cambios():
-#         nuevos_valores = {
-#             campo: entradas[campo].get()
-#             for campo in campos
-#             if entradas[campo].get().strip() != "" and entradas[campo].get() != valores_originales[campos.index(campo)]
-#         }
-
-#         if not nuevos_valores:
-#             messagebox.showinfo("Sin cambios", "No se ha modificado ningún campo.")
-#             return
-
-#         try:
-#             # Suponemos que siempre hay id único + fragmento como primeras columnas
-#             id_valor = valores_originales[0]
-#             id_fragmento = valores_originales[1]
-
-#             set_clause = ", ".join(
-#                 f"{campo} = '{valor}'"
-#                 for campo, valor in nuevos_valores.items()
-#             )
-
-#             modulo = importlib.import_module(f"tablas.{tabla_seleccionada.get().lower()}")
-#             with conn.cursor() as cur:
-#                 modulo.actualizar(cur, id_valor, id_fragmento, set_clause)
-
-#             conn.commit()
-#             messagebox.showinfo("Éxito", "Registro actualizado correctamente.")
-#             actualizar_columnas()
-#             top.destroy()
-#         except Exception as e:
-#             messagebox.showerror("Error", f"No se pudo actualizar el registro:\n{e}")
-
-#     tk.Button(top, text="Guardar Cambios", command=guardar_cambios,
-#               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
-#               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
-
-# def abrir_ventana_actualizar():
-#     seleccionado = tabla.focus()
-#     if not seleccionado:
-#         messagebox.showwarning("Advertencia", "Seleccione un registro para actualizar.")
-#         return
-
-#     valores = tabla.item(seleccionado, "values")
-#     campos = tabla["columns"]
-
-#     top = tk.Toplevel(root)
-#     top.title(f"Actualizar {tabla_seleccionada.get()}")
-#     top.geometry("400x500")
-#     top.configure(bg=CREMA)
-
-#     tk.Label(top, text="✏️ Actualizar Registro", bg=CREMA, fg=AZUL_OSCURO,
-#              font=("Arial", 16, "bold")).pack(pady=(15, 10))
-
-#     entradas = {}
-
-#     for i, campo in enumerate(campos):
-#         tk.Label(top, text=f"{campo}:", bg=CREMA, fg="black", font=("Arial", 11)).pack()
-#         entrada = tk.Entry(top, font=("Arial", 10))
-#         entrada.insert(0, valores[i])
-#         entrada.pack(pady=5)
-#         entradas[campo] = entrada
-
-#     def guardar_cambios():
-#         nuevos_valores = {campo: entradas[campo].get() for campo in campos}
-#         if not all(nuevos_valores.values()):
-#             messagebox.showwarning("Advertencia", "Complete todos los campos.")
-#             return
-
-#         try:
-#             modulo = importlib.import_module(f"tablas.{tabla_seleccionada.get().lower()}")
-#             with conn.cursor() as cur:
-#                 modulo.actualizar(cur, nuevos_valores)
-#             conn.commit()
-#             messagebox.showinfo("Éxito", "Registro actualizado correctamente.")
-#             actualizar_columnas()
-#             top.destroy()
-#         except Exception as e:
-#             messagebox.showerror("Error", f"No se pudo actualizar el registro:\n{e}")
-
-#     tk.Button(top, text="Guardar cambios", command=guardar_cambios,
-#               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
-#               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
-
 def abrir_ventana_actualizar():
+    if tabla_seleccionada.get() == "Ingresar":
+        messagebox.showinfo("No permitido", "La tabla 'Ingresar' no admite actualizaciones.\nUse eliminar + crear.")
+        return
     seleccionado = tabla.focus()
     if not seleccionado:
         messagebox.showwarning("Advertencia", "Seleccione un registro para actualizar.")
@@ -365,6 +273,7 @@ def abrir_ventana_actualizar():
     tk.Button(top, text="Guardar cambios", command=guardar_cambios,
               font=("Arial", 11, "bold"), bg=AZUL_CLARO, fg="white",
               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
+           # Limpiar columnas
 
 # Columnas necesarias para eliminar registros por tabla
 columnas_para_eliminar = {
@@ -425,17 +334,25 @@ def abrir_ventana_eliminar():
     tk.Button(botones, text="Eliminar", command=confirmar_eliminar,
               font=("Arial", 10, "bold"), bg=ROJO_OSCURO, fg="white").grid(row=0, column=1, padx=10)
 
+def limpiar_interfaz():
+    tabla_seleccionada.set("Selecciona una tabla")         # Volver al valor inicial del combobox
+    tabla.delete(*tabla.get_children())  # Borrar filas del Treeview
+    tabla["columns"] = []   
 # Reemplaza los lambda de prueba por las funciones reales
 crear_boton("CREAR", abrir_ventana_crear, 0)
 crear_boton("BUSCAR", abrir_ventana_buscar, 1)
 crear_boton("ACTUALIZAR", abrir_ventana_actualizar, 2)
 crear_boton("ELIMINAR", abrir_ventana_eliminar, 3)
+crear_boton("LIMPIAR", limpiar_interfaz, 4)
 
 
 
 # --- Callback actualizar columnas + cargar datos ---
 def actualizar_columnas(*args):
     tabla.delete(*tabla.get_children())
+    if tabla_seleccionada.get() == "Selecciona una tabla":
+        tabla["columns"] = []
+        return
 
     columnas = {
         "Campus": ["idCampus", "direccionCampus", "nombreCampus"],
@@ -444,12 +361,12 @@ def actualizar_columnas(*args):
         "Credencial": ["idCredencial", "tipoCredencial", "idUsuario", "estadoCredencial"],
         "RegistroAcceso": ["idRegistro", "idCampus", "idCredencial", "idDispositivo", "evento", "fecha", "hora"],
         "Usuario": ["idUsuario", "nombre", "apellido", "correo", "idTipoUsuario", "estadoUsuario", "idCampus"],
-        "TipoUsuario": ["idTipo", "descripcionTipo"]
+        "TipoUsuario": ["idTipoUsuario", "descripcionTipo"]
     }[tabla_seleccionada.get()]
 
     tabla["columns"] = columnas
     for col in columnas:
-        tabla.heading(col, text=col)
+        tabla.heading(col, text=col, anchor="center")
         tabla.column(col, width=180, anchor="center")
 
     try:
@@ -458,6 +375,15 @@ def actualizar_columnas(*args):
             modulo.cargar_datos(tabla, cur)
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo cargar datos: {e}")
+        # --- Deshabilitar botones si no hay permiso ---
+    if nodo == "El Bosque" and tabla_seleccionada.get() in ("Usuario", "Credencial"):
+        for btn in panel_botones.winfo_children():
+            if btn["text"] in ("CREAR", "ACTUALIZAR", "ELIMINAR"):
+                btn.config(state="disabled")
+    else:
+        for btn in panel_botones.winfo_children():
+            btn.config(state="normal")
+
 
 # --- Vincular evento ---
 tabla_menu.bind("<<ComboboxSelected>>", actualizar_columnas)

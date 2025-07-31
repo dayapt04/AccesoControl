@@ -13,8 +13,16 @@ def crear(cursor, valores):
         raise ValueError("Se esperaba una lista ordenada, no un diccionario")
     cursor.execute("EXEC spInsertarCampus ?,?,?", valores)
 
-def actualizar(cursor, valores):
-    cursor.execute("EXEC spActualizarCampus ?,?,?,?,?", valores)
-
+def actualizar(cursor, datos):
+    cursor.execute("""
+        EXEC spActualizarCampus 
+            @idCampus = ?,
+            @direccionCampus = ?,
+            @nombreCampus = ?
+    """, (
+        datos["idCampus"],
+        datos["direccionCampus"],
+        datos["nombreCampus"]
+    ))
 def eliminar(cursor, id_campus):
     cursor.execute("EXEC spEliminarCampus ?", (id_campus,))

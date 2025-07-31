@@ -46,5 +46,33 @@ def crear(cursor, valores):
         raise ValueError("Se esperaba una lista ordenada, no un diccionario")
     cursor.execute("EXEC spInsertarRegistroAcceso ?, ?, ?, ?, ?", valores)
 
+from datetime import datetime  # noqa: E402
+
+def actualizar(cursor, valores):
+    try:
+        # Convertir strings a tipos adecuados
+        idRegistro = int(valores["idRegistro"])
+        idCampus = str(valores["idCampus"])
+        evento = str(valores["evento"])
+
+        # Validar y convertir fecha
+        try:
+            fecha = datetime.strptime(valores["fecha"], "%d/%m/%Y").date()
+        except ValueError:
+            raise ValueError("Formato de fecha inválido. Usa dd/mm/yyyy.")
+
+        # Validar y convertir hora
+        try:
+            hora = datetime.strptime(valores["hora"], "%H:%M:%S").time()
+        except ValueError:
+            raise ValueError("Formato de hora inválido. Usa HH:MM:SS.")
+
+        # Ejecutar SP
+        cursor.execute("EXEC spActualizarRegistroAcceso ?, ?, ?, ?, ?",
+                       idRegistro, idCampus, evento, fecha, hora)
+    except Exception as e:
+        raise e
+
+
 def eliminar(cursor, id_registro, id_campus):
     cursor.execute("EXEC spEliminarRegistroAcceso ?, ?", (id_registro, id_campus))
