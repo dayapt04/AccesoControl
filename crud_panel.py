@@ -223,6 +223,15 @@ def abrir_ventana_buscar():
               activebackground=ROJO_OSCURO, relief="flat").pack(pady=15, ipadx=10, ipady=4)
 
 def abrir_ventana_actualizar():
+    campos_no_editables = {
+    "RegistroAcceso": ["idRegistro", "idCampus", "idCredencial", "idDispositivo"],
+    "DispositivoEntrada": ["idDispositivo", "idCampus"],
+    "Credencial": ["idCredencial"],
+    "Usuario": ["idUsuario", "idCampus"],
+    "Campus": ["idCampus"],
+    "TipoUsuario": ["idTipoUsuario"]
+}
+
     if tabla_seleccionada.get() == "Ingresar":
         messagebox.showinfo("No permitido", "La tabla 'Ingresar' no admite actualizaciones.\nUse eliminar + crear.")
         return
@@ -246,10 +255,17 @@ def abrir_ventana_actualizar():
 
     for i, campo in enumerate(campos):
         tk.Label(top, text=f"{campo}:", bg=CREMA, fg="black", font=("Arial", 11)).pack()
+        editable = campo not in campos_no_editables.get(tabla_seleccionada.get(), [])
         entrada = tk.Entry(top, font=("Arial", 10))
-        entrada.insert(0, valores[i])  # Rellena con el valor actual
+        entrada.insert(0, valores[i])
+        if not editable:
+            entrada.config(state="disabled")
         entrada.pack(pady=5)
         entradas[campo] = entrada
+        # entrada = tk.Entry(top, font=("Arial", 10))
+        # entrada.insert(0, valores[i])  # Rellena con el valor actual
+        # entrada.pack(pady=5)
+        # entradas[campo] = entrada
 
     def guardar_cambios():
         # Recoge TODOS los valores, modificados o no
